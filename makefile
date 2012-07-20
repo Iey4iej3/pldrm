@@ -1,6 +1,8 @@
 all: pldrm.pdf pldrm
 clean:
 	rm pldrm pldrm.aux pldrm.cc pldrm.dvi pldrm.log pldrm.out pldrm.pdf pldrm.ps pldrm.tex
+clear:
+	rm pldrm pldrm.aux pldrm.dvi pldrm.log pldrm.out pldrm.ps pldrm.tex
 pldrm.cc: pldrm.nw
 	notangle -Rpldrm.cc pldrm.nw > pldrm.cc
 pldrm: pldrm.cc

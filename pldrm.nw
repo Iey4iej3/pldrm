@@ -166,7 +166,13 @@ The substring of $s$ whose center is $c$ and length is $l$ is \mbox{$s[(c-l+1)/2
   \captionof{figure}{Flowchart of the main loop}
 \end{center}
 
-Now let's make some assertions on the flow chart of the main loop. They're not very difficult to verify.
+Now let's label some arrows with an assertion on the flow chart of the main loop. This is a technique to prove the validity of the algorithm, introduced in Don Knuth's \emph{The Art of Computer Programming}~\cite{taocp}, section \S1.2.1, mathematical induction. I quote the most important statement on that book here:
+\begin{quote}
+if an assertion attached to any arrow leading into the box is true before the operation in that box is performed, then all of the assertions on relevant arrows leading away from the box are true after operation
+\ldots\ldots
+For we can now use induction on the number of steps of the computation, in the sense of the number of arrows traversed in the flow chart.
+\end{quote}
+Assertions are stated:
 \begin{asst}\label{asst1}
 $2\le k\le n+1$, and the length and the center of the longest tail palindrome of $s[0\ldotd k-1]$ is $l$ and $j+1$, while $a[0\ldotd j]$ is computed. (Notice that once assigned, $a[t]$ will not be reassigned, therefore that $a[t]$ is computed/calculated/determined means that $a[t]$ is assigned and $a[t]=a_t$.)
 \end{asst}
@@ -219,7 +225,7 @@ $a_{c+j}=\min(a_{c-j},l-j)$.
 \end{lem}
 Just like the flowchart of the main loop, we can make some assertions on the flow chart of the move loop. I will figure out the critical part, so that others could be discovered mechanically.
 \begin{asst}\label{asst7}
-$2\le k\le n+1, l\ge-1$, the center of $s[k-l\ldotd k-1]$ is $j+1$, $a[0\ldotd j]$ is well-computed, and $p+j=2j_0-1$, where $j_0$ is the $j$ after \emph{init}.
+$2\le k\le n+1, l\ge-1$, the center of $s[k-l-1\ldotd k]$ is $j+1$, $a[0\ldotd j]$ is well-computed, $p+j=2j_0-1$, and the length of the longest tail palindrome of $s[0\ldotd k]$ is not more than $l+2$, where $j_0$ is the $j$ after \emph{init}.
 \end{asst}
 
 \section{Analysis of the algorithm}

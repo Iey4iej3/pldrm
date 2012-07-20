@@ -1,0 +1,229 @@
+\documentclass{scrartcl}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{hyperref}
+\usepackage{caption}
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows}
+\usepackage[parfill]{parskip}
+\usepackage{noweb}
+\pagestyle{noweb}
+
+\begin{document}
+\newcommand\ldotd{\mathinner{..}}
+\newtheorem{lem}{Lemma}
+\newtheorem{dfnt}{Definition}
+\newtheorem{asst}{Assertion}
+% Define block styles
+\tikzstyle{block} = [rectangle, draw, fill=blue!20, 
+    text width=5em, text centered, rounded corners, minimum height=4em]
+
+\title{Jeuring's algorithm on palindromes}
+\subtitle{An implement with literate programming and C++ programming language}
+\maketitle{}
+
+\section{Introduction}
+All the techniques used in this article is well-introduced in Don Knuth's magnificent book~\cite{taocp}, which is strongly-suggested in Computer Science.
+This is a very efficient algorithm, designed by Johan Jeuring, which is used to determine the longest palindrome in $O(n)$ time. You can read his original article~\cite{jj} and his pretty Haskell code. Now, I want to show how his algorithm works and why it's right.
+
+As usual, a program (especially C/C++ code) is made up of three parts: preprocessors, global variables and routines.
+<<pldrm.cc>>=
+<<preprocessors>>
+<<globals>>
+<<main>>
+@
+
+It's essential to include the standard libraries, such as cstdio, cstdlib and cstring.
+<<preprocessors>>=
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <algorithm>
+using namespace std;
+@
+
+\section{Main routine}
+Here's the main routine.
+<<main>>=
+int main()
+{
+  <<mainvar>>
+  <<input>>
+  <<main loop>>
+  <<output>>
+  return 0;
+}
+@
+
+Given that $s[1\ldotd n]$ is the string inputted, and $n$ is the length of $s$, where \mbox{$s[0]=1,s[n+1]=0$}.
+<<preprocessors>>=
+#define MAX_LEN 100000
+@
+<<globals>>=
+int n;
+char s[MAX_LEN+2];
+@
+<<input>>=
+s[0] = 1;
+scanf("%s", &s[1]);
+n = strlen(&s[1]);
+@
+
+\begin{dfnt}
+We say $l+r$ is the center of substring $s[l\ldotd r]$. For example, $4$ is the center of $s[2\ldotd2]$ or $s[1\ldotd3]$.
+\end{dfnt}
+$a[k]$ is the length of the longest palindrome whose center is $k$.
+<<output>>=
+for (int k=1; k<=2*n+1; k++) {
+  printf("%d\n", a[k]);
+}
+@
+
+\section{Main loop}
+\begin{dfnt}
+We call some string $A$ is a tail palindrome of the other string $B$ if and only if $A$ is a palindromic tail substring of $B$. For example, $A=aba$ and $B=aaaababa$, where $A$ is palindromic and $A$ is a tail substring of $B$.
+\end{dfnt}
+The main loop calculate array $a$ in the increasing order of the index. We will see that the invariant of main loop is assertion \ref{asst1}.
+<<globals>>=
+int a[2*MAX_LEN+4];
+@
+<<mainvar>>=
+int j, l;
+<<main loop>>=
+j = 1;
+l = 1;
+a[0] = 1;
+a[1] = 0;
+for (int k=2; k<=n+1; k++) {
+  <<process>>
+  advance:
+  ;
+}
+@
+
+Process is made up of an infinite loop, which is used to find the longest tail palindrome of $s[0\ldotd k]$. There are two exits of it. One is in extension subroutine, while the other one is in move loop. The way of exit is \emph{goto advance;}.
+The loop invariant for process is assertion \ref{asst3}.
+<<process>>=
+for (;;) {
+  <<check>>
+  <<move loop>>
+}
+@
+
+The check subroutine checks whether a tail palindrome of $s[0\ldotd k-1]$ could be extended to that of $s[0\ldotd k]$. If so, exit from the process loop and advance $k$, otherwise start the move loop.
+<<check>>=
+if (s[k] == s[k-l-1]) {
+  l += 2;
+  goto advance;
+}
+@
+
+Here's the move loop, which looks short and easy. It's used to find a shorter tail palindrome of $s[0\ldotd k-1]$.
+<<mainvar>>=
+int p;
+@
+<<move loop>>=
+a[++j] = l;
+for (p=j-1; --l>=0&&l!=a[p]; p--) {
+  a[++j] = min(a[p], l);
+}
+if (l < 0) {
+  l = 1;
+  goto advance;
+}
+@
+
+\section{The outline of the proof}
+\begin{lem}
+An arbitrary tail palindrome of $s[0\ldotd m]$ is also a tail palindrome of $s[1\ldotd m]$ for all $m>0$.
+\end{lem}
+\begin{lem}
+The substring of $s$ whose center is $c$ and length is $l$ is \mbox{$s[(c-l+1)/2\ldotd(c+l-1)/2]$}.
+\end{lem}
+
+\begin{center}
+  \begin{tikzpicture}[->,>=stealth',node distance=4.5cm, auto]
+    % Place nodes
+    \node [block] (loop) {All computed?};
+    \node [block, left of=loop] (init) {Initiate};
+    \node [below of=init, node distance=3cm] (begin) {Begin};
+    \node [above of=loop, node distance=3cm] (end) {End};
+    \node [block, right of=loop] (check) {Check};
+    \node [block, right of=check] (move) {Move};
+    \node [block, below of=check, node distance=3cm] (advance) {Advance};
+    % Draw edges
+    \path (begin) edge (init);
+    \path (init) edge node {Assertion 1} (loop);
+    \path (loop) edge node [near start] {Yes} (end);
+    \path (loop) edge node {Assertion 1} (check);
+    \path (check) [bend left] edge node {Assertion 2} (move);
+    \path (move) [bend left] edge node {Assertion 3} (check);
+    \path (check) edge node {Assertion 5} (advance);
+    \path (move) [bend left] edge node {Assertion 4} (advance);
+    \path (advance) edge node {Assertion 6} (loop);
+  \end{tikzpicture}
+  \captionof{figure}{Flowchart of the main loop}
+\end{center}
+
+Now let's make some assertions on the flow chart of the main loop. They're not very difficult to verify.
+\begin{asst}\label{asst1}
+$2\le k\le n+1$, and the length and the center of the longest tail palindrome of $s[0\ldotd k-1]$ is $l$ and $j+1$, while $a[0\ldotd j]$ is computed.
+\end{asst}
+\begin{asst}\label{asst2}
+$2\le k\le n+1$, $s[k-l\ldotd k-1]$ is a palindrome or empty string, whose center is $j+1$, $l\ge0$, the length of the longest tail palindrome of $s[0\ldotd k]$ is less than $l+2$, and $a[0\ldotd j]$ is calculated.
+\end{asst}
+\begin{asst}\label{asst3}
+$2\le k\le n+1$, $s[k-l\ldotd k-1]$ is a palindrome or empty string, whose center is $j+1$, $l\ge0$, the length of the longest tail palindrome of $s[0\ldotd k]$ is not more than $l+2$, and $a[0\ldotd j]$ is assigned.
+\end{asst}
+\begin{asst}\label{asst4}
+$2\le k\le n+1$, the length and the center of the longest tail palindrome of $s[0\ldotd k]$ is $l=1$ and $j+1$, where $a[0\ldotd j]$ is determined.
+\end{asst}
+\begin{asst}\label{asst5}
+$2\le k\le n+1$, the length and the center of the longest tail palindrome of $s[0\ldotd k-1]$ is $l$ and $j+1$, and $a[0\ldotd j]$ is calculated.
+\end{asst}
+\begin{asst}\label{asst6}
+$3\le k\le n+2$, the length and the center of the longest tail palindrome of $s[0\ldotd k-1]$ is $l$ and $j+1$, and $a[0\ldotd j]$ is computed.
+\end{asst}
+
+\begin{center}
+  \begin{tikzpicture}[->,>=stealth',node distance=4.5cm, auto]
+    % Place nodes
+    \node [block] (init) {Init};
+    \node [below of=init, node distance=3cm] (a2) {Assertion 2};
+    \node [block, right of=init] (decl) {Decrease $l$};
+    \node [block, right of=decl] (fnd) {Found or hit bound?};
+    \node [block, below of=fnd, node distance=3cm] (fill) {Fill $a$};
+    \node [block, right of=fnd] (bnd) {Bound?};
+    \node [block, below of=bnd, node distance=3cm] (reass) {Reassign $l$};
+    \node [below of=reass, node distance=2cm] (a4) {Assertion 4};
+    \node [above of=bnd, node distance=2cm] (a3) {Assertion 3};
+    % Draw edges
+    \path (a2) edge (init);
+    \path (init) edge (decl);
+    \path (decl) edge node {Assertion 7} (fnd);
+    \path (fnd) edge node [near start] {No} (fill);
+    \path (fill) [bend left] edge (decl);
+    \path (fnd) edge node [near start] {Yes} (bnd);
+    \path (bnd) edge (reass);
+    \path (reass) edge (a4);
+    \path (bnd) edge (a3);
+  \end{tikzpicture}
+  \captionof{figure}{Flowchart of the move loop}
+\end{center}
+
+Just like the flowchart of the main loop, we can make some assertions on the flow chart of the move loop. I will figure out the critical part, so that others could be discovered mechanically.
+\begin{asst}\label{asst7}
+\end{asst}
+
+\section{Analysis of the algorithm}
+
+\begin{thebibliography}{99}
+\bibitem{taocp} Donald E. Knuth: \emph{The Art of Computer Programming}, Volume 1, Third edition.
+\bibitem{noweb} \href{http://www.cs.tufts.edu/~nr/noweb/onepage.ps}{\emph{One-Page Guide to Using Noweb with \LaTeX}}
+\bibitem{jj} Johan Jeuring: \href{http://finding-palindromes.blogspot.com/2012/05/finding-palindromes-efficiently.html}{\emph{Finding palindromes efficiently}}
+\bibitem{lshort} T Oetiker: \emph{The Not So Short Introduction to \LaTeXe} (1995)
+\bibitem{tikz1} Kjell Magne Fauske: \href{http://www.texample.net/tikz/examples/simple-flow-chart/}{\emph{Example: Simple flow chart}}
+\bibitem{tikz2} The TikZ and PGF manual: \href{http://www.texample.net/tikz/examples/simple-flow-chart/}{\emph{Example: State machine}}
+\end{thebibliography}
+\end{document}

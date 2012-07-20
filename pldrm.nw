@@ -186,7 +186,7 @@ $2\le k\le n+1$, $s[k-l\ldotd k-1]$ is a palindrome or empty string, whose cente
 $2\le k\le n+1$, the length and the center of the longest tail palindrome of $s[0\ldotd k]$ is $l=1$ and $j+1$, where $a[0\ldotd j]$ is determined.
 \end{asst}
 \begin{asst}\label{asst5}
-$2\le k\le n+1$, the length and the center of the longest tail palindrome of $s[0\ldotd k-1]$ is $l$ and $j+1$, and $a[0\ldotd j]$ is calculated.
+$2\le k\le n+1$, the length and the center of the longest tail palindrome of $s[0\ldotd k]$ is $l\ge2$ and $j+1$, and $a[0\ldotd j]$ is calculated.
 \end{asst}
 \begin{asst}\label{asst6}
 $3\le k\le n+2$, the length and the center of the longest tail palindrome of $s[0\ldotd k-1]$ is $l$ and $j+1$, and $a[0\ldotd j]$ is computed.

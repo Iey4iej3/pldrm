@@ -73,7 +73,7 @@ n = strlen(&s[1]);
 \begin{dfnt}
 We say $l+r$ is the center of substring $s[l\ldotd r]$. For example, $4$ is the center of $s[2\ldotd2]$ or $s[1\ldotd3]$.
 \end{dfnt}
-$a[k]$ is the length of the longest palindrome whose center is $k$.
+$a_k$ is the length of the longest palindrome whose center is $k$, and $a[0\ldotd2n]$ is the array to save $\langle a_k\rangle$.
 <<output>>=
 for (int k=1; k<=2*n+1; k++) {
   printf("%d\n", a[k]);
@@ -168,7 +168,7 @@ The substring of $s$ whose center is $c$ and length is $l$ is \mbox{$s[(c-l+1)/2
 
 Now let's make some assertions on the flow chart of the main loop. They're not very difficult to verify.
 \begin{asst}\label{asst1}
-$2\le k\le n+1$, and the length and the center of the longest tail palindrome of $s[0\ldotd k-1]$ is $l$ and $j+1$, while $a[0\ldotd j]$ is computed.
+$2\le k\le n+1$, and the length and the center of the longest tail palindrome of $s[0\ldotd k-1]$ is $l$ and $j+1$, while $a[0\ldotd j]$ is computed. (Notice that once assigned, $a[t]$ will not be reassigned, therefore that $a[t]$ is computed/calculated/determined means that $a[t]$ is assigned and $a[t]=a_t$.)
 \end{asst}
 \begin{asst}\label{asst2}
 $2\le k\le n+1$, $s[k-l\ldotd k-1]$ is a palindrome or empty string, whose center is $j+1$, $l\ge0$, the length of the longest tail palindrome of $s[0\ldotd k]$ is less than $l+2$, and $a[0\ldotd j]$ is calculated.
@@ -212,8 +212,14 @@ $3\le k\le n+2$, the length and the center of the longest tail palindrome of $s[
   \captionof{figure}{Flowchart of the move loop}
 \end{center}
 
+Now we observe a non-trivial lemma, which is the key to the move loop.
+\begin{lem}
+Suppose that $l=a_c$, $j$ is a positive integer such that $j\le l$, and $a_{c-j}\neq l-j$, we have
+$a_{c+j}=\min(a_{c-j},l-j)$.
+\end{lem}
 Just like the flowchart of the main loop, we can make some assertions on the flow chart of the move loop. I will figure out the critical part, so that others could be discovered mechanically.
 \begin{asst}\label{asst7}
+$2\le k\le n+1, l\ge-1$, the center of $s[k-l\ldotd k-1]$ is $j+1$, $a[0\ldotd j]$ is well-computed, and $p+j=2j_0+1$, where $j_0$ is the $j$ after \emph{init}.
 \end{asst}
 
 \section{Analysis of the algorithm}

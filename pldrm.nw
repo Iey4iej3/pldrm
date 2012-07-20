@@ -148,7 +148,7 @@ The substring of $s$ whose center is $c$ and length is $l$ is \mbox{$s[(c-l+1)/2
     \node [block] (loop) {All computed?};
     \node [block, left of=loop] (init) {Initiate};
     \node [below of=init, node distance=3cm] (begin) {Begin};
-    \node [above of=loop, node distance=3cm] (end) {End};
+    \node [above of=loop, node distance=3cm] (end) {Assertion 7};
     \node [block, right of=loop] (check) {Check};
     \node [block, right of=check] (move) {Move};
     \node [block, below of=check, node distance=3cm] (advance) {Advance};
@@ -191,6 +191,9 @@ $2\le k\le n+1$, the length and the center of the longest tail palindrome of $s[
 \begin{asst}\label{asst6}
 $3\le k\le n+2$, the length and the center of the longest tail palindrome of $s[0\ldotd k-1]$ is $l$ and $j+1$, and $a[0\ldotd j]$ is computed.
 \end{asst}
+\begin{asst}\label{asst7}
+the length and the center of the longest tail palindrome of $s[0\ldotd k-1]$ is $l$ and $j+1$, and $[0\ldotd j]$ is determined, where $k=n+2,l=1$ and $j=2n+1$.
+\end{asst}
 
 \begin{center}
   \begin{tikzpicture}[->,>=stealth',node distance=4.5cm, auto]
@@ -207,7 +210,7 @@ $3\le k\le n+2$, the length and the center of the longest tail palindrome of $s[
     % Draw edges
     \path (a2) edge (init);
     \path (init) edge (decl);
-    \path (decl) edge node {Assertion 7} (fnd);
+    \path (decl) edge node {Assertion 8} (fnd);
     \path (fnd) edge node [near start] {No} (fill);
     \path (fill) [bend left] edge (decl);
     \path (fnd) edge node [near start] {Yes} (bnd);
@@ -224,18 +227,45 @@ Suppose that $l=a_c$, $j$ is a positive integer such that $j\le l$, and $a_{c-j}
 $a_{c+j}=\min(a_{c-j},l-j)$.
 \end{lem}
 Just like the flowchart of the main loop, we can make some assertions on the flow chart of the move loop. I will figure out the critical part, so that others could be discovered mechanically.
-\begin{asst}\label{asst7}
+\begin{asst}\label{asst8}
 $2\le k\le n+1, l\ge-1$, the center of $s[k-l-1\ldotd k]$ is $j+1$, $a[0\ldotd j]$ is well-computed, $p+j=2j_0-1$, and the length of the longest tail palindrome of $s[0\ldotd k]$ is not more than $l+2$, where $j_0$ is the $j$ after \emph{init}.
 \end{asst}
 
 \section{Analysis of the algorithm}
+It's so hard for me to analyze the algorithm, so I'll show some partial results, which results in the running time complexity is $\Theta(n)$.
+
+Look at the flow chart of the main loop. Suppose that $A,B$ is the times of going through the arrow from \emph{Move} to \emph{Check} and \emph{Move} to \emph{Advance}, and $C$ is the times of running of \emph{Fill a}. Out of Kirchhoff's first law for the flow chart, we obtain:
+
+\begin{tabular}{|l|l|}
+\hline
+\emph{Initiate}&$1$\\\hline
+\emph{All computed?}&$n+1$\\\hline
+\emph{Check}&$n+A$\\\hline
+\emph{Advance}&$n$\\\hline
+\emph{Init}&$A+B$\\\hline
+\emph{Decrease $l$}&$A+B+C$\\\hline
+\emph{Found or hit bound?}&$A+B+C$\\\hline
+\emph{Fill $a$}&$C$\\\hline
+\emph{Bound?}&$A+B$\\\hline
+\emph{Reassign $l$}&$B$\\
+\hline
+\end{tabular}
+
+For there are only two operations containing $j\gets j+1$: \emph{Init} and \emph{Fill $a$}, we have $A+B+C=2n+1-1=2n$. Given that $b_k$ is the length of longest tail palindrome of $s[0\ldotd k]$, we have
+\[
+  B=\sum_{k=2}^{n+1}[b_k=1]
+\]
+where $[P]$ is Iverson bracket~\cite{ivs}, which is well introduced in \emph{Concrete Mathematics}~\cite{cmath}.
+I cannot get the more precise result for $A$ and $C$. Anybody good at mathematics or familiar with analysis of algorithms could help me!
 
 \begin{thebibliography}{99}
-\bibitem{taocp} Donald E. Knuth: \emph{The Art of Computer Programming}, Volume 1, Third edition.
+\bibitem{taocp} Donald E. Knuth: \emph{The Art of Computer Programming} Volume 1, third edition.
+\bibitem{cmath} Ronald L. Graham, Donald E. Knuth, Oren Patashnik: \emph{Concrete Mathematics} second edition.
 \bibitem{noweb} \href{http://www.cs.tufts.edu/~nr/noweb/onepage.ps}{\emph{One-Page Guide to Using Noweb with \LaTeX}}
 \bibitem{jj} Johan Jeuring: \href{http://finding-palindromes.blogspot.com/2012/05/finding-palindromes-efficiently.html}{\emph{Finding palindromes efficiently}}
 \bibitem{lshort} T Oetiker: \emph{The Not So Short Introduction to \LaTeXe} (1995)
 \bibitem{tikz1} Kjell Magne Fauske: \href{http://www.texample.net/tikz/examples/simple-flow-chart/}{\emph{Example: Simple flow chart}}
 \bibitem{tikz2} The TikZ and PGF manual: \href{http://www.texample.net/tikz/examples/simple-flow-chart/}{\emph{Example: State machine}}
+\bibitem{ivs} \href{http://en.wikipedia.org/wiki/Iverson_bracket}{\emph{Iverson bracket}}
 \end{thebibliography}
 \end{document}

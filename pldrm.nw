@@ -219,7 +219,7 @@ $a_{c+j}=\min(a_{c-j},l-j)$.
 \end{lem}
 Just like the flowchart of the main loop, we can make some assertions on the flow chart of the move loop. I will figure out the critical part, so that others could be discovered mechanically.
 \begin{asst}\label{asst7}
-$2\le k\le n+1, l\ge-1$, the center of $s[k-l\ldotd k-1]$ is $j+1$, $a[0\ldotd j]$ is well-computed, and $p+j=2j_0+1$, where $j_0$ is the $j$ after \emph{init}.
+$2\le k\le n+1, l\ge-1$, the center of $s[k-l\ldotd k-1]$ is $j+1$, $a[0\ldotd j]$ is well-computed, and $p+j=2j_0-1$, where $j_0$ is the $j$ after \emph{init}.
 \end{asst}
 
 \section{Analysis of the algorithm}

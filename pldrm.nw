@@ -74,6 +74,7 @@ n = strlen(&s[1]);
 We say $l+r$ is the center of substring $s[l\ldotd r]$. For example, $4$ is the center of $s[2\ldotd2]$ or $s[1\ldotd3]$.
 \end{dfnt}
 $a_k$ is the length of the longest palindrome whose center is $k$, and $a[0\ldotd2n]$ is the array to save $\langle a_k\rangle$.
+\emph{The algorithm is used to determine $a_k$.}
 <<output>>=
 for (int k=1; k<=2*n+1; k++) {
   printf("%d\n", a[k]);
